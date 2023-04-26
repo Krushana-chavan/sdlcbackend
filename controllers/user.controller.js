@@ -21,8 +21,12 @@ const getalluser = async (req,res)=>{
   }
 }
 const adduser = async (req,res)=>{
+  const {username,email,password,phonenumber} = req.body;
+ const isUser = await userModel.findOne({email})
+ if(isUser){
+  res.status(500).json({error:"User already exist !"})
+ }else{
   try{
-    const {username,email,password,phonenumber} = req.body;
     const newUser = new userModel({
       username,
       email,
@@ -30,19 +34,32 @@ const adduser = async (req,res)=>{
       phonenumber,
     });
     await newUser.save()
-    res.status(200).json("User Added Successfully !")
+    res.status(200).json({msg:"User Added Successfully !"})
   }
   catch{
-    res.status(400).json("Something went wrong !")
+    res.status(400).json({msg:"Something went wrong !"})
   }
+ }
+ 
 }
 
 
-
+const deleteuser =async (req,res)=>{
+  try{
+    const{id}= req.params;
+    const delted = await userModel.findOneAndDelete({_id:id})
+    if(delted){
+      res.status(200).json({msg:"User Deleted Successfully !"})
+    }
+  }catch(err){
+    res.status(400).json({msg:"Something went wrong ! Please try again!"})
+  }
+}
 const UserController = {
   getUser,
   getalluser,
-  adduser
+  adduser,
+  deleteuser
 };
 
 module.exports = {
